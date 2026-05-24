@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+    <!-- Left Outer Page (L0) -->
+    <polygon points="100,135 22,91 30,45 100,79" fill="#A67B4A" />
+
+    <!-- Right Outer Page (L0) -->
+    <polygon points="100,135 178,91 170,45 100,79" fill="#A67B4A" />
+
+    <!-- Left Inner Page 1 (L1) -->
+    <polygon points="100,134 28,88 37,37 100,79" fill="#D4BC9A" />
+
+    <!-- Right Inner Page 1 (L1) -->
+    <polygon points="100,134 172,88 163,37 100,79" fill="#D4BC9A" />
+
+    <!-- Left Inner Page 2 (L2) -->
+    <polygon points="100,133 35,86 45,30 100,79" fill="#E4D4B6" />
+
+    <!-- Right Inner Page 2 (L2) -->
+    <polygon points="100,133 165,86 155,30 100,79" fill="#E4D4B6" />
+
+    <!-- Left Inner Page 3 (L3) - Deepest Page -->
+    <polygon points="100,132 42,84 55,25 100,65" fill="#f8f2e7" />
+
+    <!-- Right Inner Page 3 (L3) - Deepest Page -->
+    <polygon points="100,132 158,84 145,25 100,65" fill="#f8f2e7" />
+
+    <!-- Middle Line -->
+    <line x1="100" y1="65" x2="100" y2="132" stroke="#6D4C2F" stroke-width="0.5" stroke-linecap="round" />
+
+    <text x="100" y="160" font-family="Palatino Linotype, serif" font-size="22" font-weight="700" fill="#A67B4A" text-anchor="middle" letter-spacing="6">VARAQ</text>
+</svg>
