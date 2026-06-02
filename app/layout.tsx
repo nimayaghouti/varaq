@@ -1,7 +1,9 @@
-import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { iranSansX } from './fonts';
 import './globals.css';
+
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Varaq',
@@ -18,8 +20,18 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
       className={cn('h-full', 'antialiased', iranSansX.variable, 'font-sans')}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
