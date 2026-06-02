@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
 import { iranSansX } from './fonts';
 import './globals.css';
@@ -16,7 +17,7 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      className={`${iranSansX.variable} font-sans h-full antialiased`}
+      className={cn('h-full', 'antialiased', iranSansX.variable, 'font-sans')}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
