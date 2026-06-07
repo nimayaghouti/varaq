@@ -1,5 +1,6 @@
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -8,6 +9,12 @@ import { BookGrid } from '@/components/shared/BookGrid';
 import { Button } from '@/components/ui/button';
 
 import { getBooks } from '@/lib/data/client';
+
+export const metadata: Metadata = {
+  title: 'صفحه اصلی - دنیای بی‌پایان کتاب‌ها',
+  description:
+    'بهترین و جدیدترین کتاب‌های چاپی را با تخفیف‌های ویژه از کتابفروشی آنلاین ورق تهیه کنید. ارسال سریع به سراسر کشور.',
+};
 
 export default async function HomePage() {
   const books = await getBooks();
