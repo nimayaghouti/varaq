@@ -74,17 +74,17 @@ export function BookCard({ book }: BookCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 flex justify-between items-center gap-2">
+      <CardFooter className="px-4 py-2 flex justify-between items-center gap-2">
         <span className="font-bold text-primary text-sm md:text-base whitespace-nowrap">
           {formatPrice(book.price)}
         </span>
         <Button
           size="sm"
           variant="outline"
-          className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors"
+          className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors cursor-pointer"
           aria-label="افزودن به سبد خرید"
         >
-          <ShoppingBag className="size-4 ml-1.5" />
+          <ShoppingBag className="size-4 sm:ml-1.5" />
           <span className="hidden sm:inline">خرید</span>
         </Button>
       </CardFooter>
