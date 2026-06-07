@@ -6,7 +6,10 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Varaq',
+  title: {
+    template: '%s | کتابفروشی ورق',
+    default: 'کتابفروشی آنلاین ورق',
+  },
   description: 'کتابفروشی آنلاین ورق',
 };
 
