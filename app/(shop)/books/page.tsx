@@ -1,11 +1,13 @@
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Frown } from 'lucide-react';
 
 import { Metadata } from 'next';
 
 import { BookCard } from '@/components/shared/BookCard';
 import { BookGrid } from '@/components/shared/BookGrid';
+import { FilterSidebar } from '@/components/shared/FilterSidebar';
 
-import { getBooks } from '@/lib/data/client';
+import { getGenres } from '@/lib/data/client';
+import { FilterParams, getFilteredBooks } from '@/lib/data/filter';
 
 export const metadata: Metadata = {
   title: 'فروشگاه کتاب',
@@ -13,8 +15,32 @@ export const metadata: Metadata = {
     'لیست کامل کتاب‌های موجود در کتابفروشی ورق. جستجو، بررسی و خرید آنلاین انواع کتاب با بهترین قیمت.',
 };
 
-export default async function BooksPage() {
-  const books = await getBooks();
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function BooksPage({ searchParams }: Props) {
+  const resolvedParams = await searchParams;
+
+  const filters: FilterParams = {
+    sort:
+      typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined,
+    minPrice: resolvedParams.minPrice
+      ? Number(resolvedParams.minPrice)
+      : undefined,
+    maxPrice: resolvedParams.maxPrice
+      ? Number(resolvedParams.maxPrice)
+      : undefined,
+    genres:
+      typeof resolvedParams.genres === 'string'
+        ? resolvedParams.genres.split(',')
+        : undefined,
+  };
+
+  const [books, genres] = await Promise.all([
+    getFilteredBooks(filters),
+    getGenres(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -28,21 +54,37 @@ export default async function BooksPage() {
           </h1>
         </div>
         <p className="text-muted-foreground">
-          گشت و گذار در میان {books.length} عنوان کتاب جذاب و خواندنی
+          گشت و گذار در میان صدها عنوان کتاب جذاب و خواندنی
         </p>
       </div>
 
-      {books.length > 0 ? (
-        <BookGrid>
-          {books.map(book => (
-            <BookCard key={book.id} book={book} />
-          ))}
-        </BookGrid>
-      ) : (
-        <div className="text-center py-20 text-muted-foreground bg-muted/20 rounded-xl border border-border/50">
-          هیچ کتابی در فروشگاه یافت نشد.
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <FilterSidebar genres={genres} />
+
+        <div className="flex-1 w-full">
+          <div className="mb-4 text-sm text-muted-foreground">
+            {books.length} کتاب یافت شد
+          </div>
+
+          {books.length > 0 ? (
+            <BookGrid layout="compact">
+              {books.map(book => (
+                <BookCard key={book.id} book={book} />
+              ))}
+            </BookGrid>
+          ) : (
+            <div className="text-center py-20 flex flex-col items-center gap-4 text-muted-foreground bg-muted/20 rounded-2xl border border-border/50">
+              <Frown className="size-12 opacity-20" />
+              <p className="text-lg">
+                متأسفانه با این فیلترها هیچ کتابی پیدا نشد.
+              </p>
+              <p className="text-sm">
+                لطفاً فیلترهای خود را تغییر دهید یا پاک کنید.
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
