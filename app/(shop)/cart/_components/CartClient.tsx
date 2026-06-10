@@ -2,9 +2,9 @@
 
 import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
+import { BookImage } from '@/components/shared/BookImage';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
@@ -78,7 +78,7 @@ export function CartClient() {
                 href={`/books/${item.id}`}
                 className="shrink-0 relative h-28 w-20 md:h-32 md:w-24 rounded-lg overflow-hidden border border-border bg-muted"
               >
-                <Image
+                <BookImage
                   src={item.cover_image}
                   alt={`جلد کتاب ${item.title}`}
                   fill
