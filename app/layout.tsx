@@ -3,6 +3,8 @@ import { iranSansX } from './fonts';
 import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { Toaster } from '@/components/ui/sonner';
+
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -33,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster position="bottom-left" richColors theme="system" />
         </ThemeProvider>
       </body>
     </html>

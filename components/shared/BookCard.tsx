@@ -1,10 +1,8 @@
-import { ShoppingBag } from 'lucide-react';
-
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { AddToCartButton } from '@/components/shared/AddToCartButton';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -78,15 +76,12 @@ export function BookCard({ book }: BookCardProps) {
         <span className="font-bold text-primary text-sm md:text-base whitespace-nowrap">
           {formatPrice(book.price)}
         </span>
-        <Button
+        <AddToCartButton
+          book={book}
           size="sm"
           variant="outline"
           className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors cursor-pointer"
-          aria-label="افزودن به سبد خرید"
-        >
-          <ShoppingBag className="size-4 sm:ml-1.5" />
-          <span className="hidden sm:inline">خرید</span>
-        </Button>
+        />
       </CardFooter>
     </Card>
   );
