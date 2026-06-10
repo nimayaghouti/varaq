@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { AddToCartButton } from '@/components/shared/AddToCartButton';
+import { BookImage } from '@/components/shared/BookImage';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -24,7 +24,7 @@ export function BookCard({ book }: BookCardProps) {
         href={`/books/${book.id}`}
         className="block relative h-70 w-full overflow-hidden bg-muted"
       >
-        <Image
+        <BookImage
           src={book.cover_image}
           alt={`جلد کتاب ${book.title}`}
           fill

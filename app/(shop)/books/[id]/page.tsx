@@ -1,10 +1,10 @@
 import { BookOpen, Calendar, ShoppingBag, User } from 'lucide-react';
 
 import { Metadata } from 'next';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 import { AddToCartButton } from '@/components/shared/AddToCartButton';
+import { BookImage } from '@/components/shared/BookImage';
 import { FadeIn } from '@/components/shared/FadeIn';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -59,7 +59,7 @@ export default async function BookDetailsPage({ params }: Props) {
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
             <div className="relative aspect-2/3 w-full max-w-sm mx-auto md:max-w-none overflow-hidden rounded-xl border border-border/50 shadow-lg bg-muted">
-              <Image
+              <BookImage
                 src={book.cover_image}
                 alt={`جلد کتاب ${book.title}`}
                 fill
