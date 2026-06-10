@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 
 import { BookCard } from '@/components/shared/BookCard';
 import { BookGrid } from '@/components/shared/BookGrid';
+import { FadeIn } from '@/components/shared/FadeIn';
 import { FilterSidebar } from '@/components/shared/FilterSidebar';
 
 import { getGenres } from '@/lib/data/client';
@@ -66,23 +67,25 @@ export default async function BooksPage({ searchParams }: Props) {
             {books.length} کتاب یافت شد
           </div>
 
-          {books.length > 0 ? (
-            <BookGrid layout="compact">
-              {books.map(book => (
-                <BookCard key={book.id} book={book} />
-              ))}
-            </BookGrid>
-          ) : (
-            <div className="text-center py-20 flex flex-col items-center gap-4 text-muted-foreground bg-muted/20 rounded-2xl border border-border/50">
-              <Frown className="size-12 opacity-20" />
-              <p className="text-lg">
-                متأسفانه با این فیلترها هیچ کتابی پیدا نشد.
-              </p>
-              <p className="text-sm">
-                لطفاً فیلترهای خود را تغییر دهید یا پاک کنید.
-              </p>
-            </div>
-          )}
+          <FadeIn direction="up">
+            {books.length > 0 ? (
+              <BookGrid layout="compact">
+                {books.map(book => (
+                  <BookCard key={book.id} book={book} />
+                ))}
+              </BookGrid>
+            ) : (
+              <div className="text-center py-20 flex flex-col items-center gap-4 text-muted-foreground bg-muted/20 rounded-2xl border border-border/50">
+                <Frown className="size-12 opacity-20" />
+                <p className="text-lg">
+                  متأسفانه با این فیلترها هیچ کتابی پیدا نشد.
+                </p>
+                <p className="text-sm">
+                  لطفاً فیلترهای خود را تغییر دهید یا پاک کنید.
+                </p>
+              </div>
+            )}
+          </FadeIn>
         </div>
       </div>
     </div>
