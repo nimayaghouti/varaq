@@ -57,6 +57,14 @@ export function Footer() {
                   جستجوی پیشرفته
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  درباره ما
+                </Link>
+              </li>
             </ul>
           </div>
 
