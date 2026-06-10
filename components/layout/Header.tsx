@@ -1,8 +1,9 @@
-import { Search, ShoppingBag } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { CartButton } from '@/components/layout/CartButton';
 import { Navigation } from '@/components/layout/Navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -36,19 +37,7 @@ export function Header() {
             </Link>
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            asChild
-            className="hover:text-primary relative"
-          >
-            <Link href="/cart" aria-label="سبد خرید">
-              <ShoppingBag className="size-5" />
-              <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
-                0
-              </span>
-            </Link>
-          </Button>
+          <CartButton />
 
           <div className="mx-1 h-6 w-px bg-border hidden sm:block"></div>
 

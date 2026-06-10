@@ -4,8 +4,8 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
+import { AddToCartButton } from '@/components/shared/AddToCartButton';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 import { getBookById, getSimilarBooks } from '@/lib/data/books';
@@ -118,13 +118,14 @@ export default async function BookDetailsPage({ params }: Props) {
             <div className="text-2xl md:text-3xl font-bold text-primary whitespace-nowrap w-full sm:w-auto text-center sm:text-right">
               {formatPrice(book.price)}
             </div>
-            <Button
+            <AddToCartButton
+              book={book}
               size="lg"
               className="w-full sm:w-auto font-bold rounded-xl gap-2 cursor-pointer"
             >
               <ShoppingBag className="size-5" />
               افزودن به سبد خرید
-            </Button>
+            </AddToCartButton>
           </div>
         </div>
       </div>
