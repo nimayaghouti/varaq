@@ -25,6 +25,7 @@ const navLinks = [
   { href: '/books', label: 'فروشگاه' },
   { href: '/genres', label: 'دسته‌بندی‌ها' },
   { href: '/search', label: 'جستجوی پیشرفته' },
+  { href: '/about', label: 'درباره ما' },
 ];
 
 export function MobileMenu() {

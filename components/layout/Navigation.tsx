@@ -9,6 +9,7 @@ const navLinks = [
   { href: '/', label: 'خانه' },
   { href: '/books', label: 'فروشگاه' },
   { href: '/genres', label: 'دسته‌بندی‌ها' },
+  { href: '/about', label: 'درباره ما' },
 ];
 
 export function Navigation() {
