@@ -4,14 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { CartButton } from '@/components/layout/CartButton';
+import { MobileMenu } from '@/components/layout/MobileMenu';
 import { Navigation } from '@/components/layout/Navigation';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { Button } from '@/components/ui/button';
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 md:px-8 flex h-16 items-center justify-between">
+        <MobileMenu />
+
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.svg"
@@ -30,7 +33,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             asChild
-            className="hover:text-primary"
+            className="hidden sm:flex hover:text-primary"
           >
             <Link href="/search" aria-label="جستجو">
               <Search className="size-5" />
@@ -41,7 +44,9 @@ export function Header() {
 
           <div className="mx-1 h-6 w-px bg-border hidden sm:block"></div>
 
-          <ThemeToggle />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>

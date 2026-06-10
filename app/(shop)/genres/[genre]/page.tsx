@@ -1,5 +1,3 @@
-// app/(shop)/genres/[genre]/page.tsx
-
 import { ArrowRight, Library } from 'lucide-react';
 
 import { Metadata } from 'next';
@@ -8,6 +6,7 @@ import { notFound } from 'next/navigation';
 
 import { BookCard } from '@/components/shared/BookCard';
 import { BookGrid } from '@/components/shared/BookGrid';
+import { FadeIn } from '@/components/shared/FadeIn';
 import { Button } from '@/components/ui/button';
 
 import { getBooks, getGenres } from '@/lib/data/client';
@@ -74,18 +73,20 @@ export default async function GenreFilterPage({ params }: Props) {
         </p>
       </div>
 
-      {filteredBooks.length > 0 ? (
-        <BookGrid>
-          {filteredBooks.map(book => (
-            <BookCard key={book.id} book={book} />
-          ))}
-        </BookGrid>
-      ) : (
-        <div className="text-center py-20 flex flex-col gap-4 items-center justify-center text-muted-foreground bg-muted/20 rounded-xl border border-border/50">
-          <Library className="size-12 opacity-20" />
-          <p>متأسفانه هنوز کتابی در این دسته‌بندی اضافه نشده است.</p>
-        </div>
-      )}
+      <FadeIn direction="up">
+        {filteredBooks.length > 0 ? (
+          <BookGrid>
+            {filteredBooks.map(book => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </BookGrid>
+        ) : (
+          <div className="text-center py-20 flex flex-col gap-4 items-center justify-center text-muted-foreground bg-muted/20 rounded-xl border border-border/50">
+            <Library className="size-12 opacity-20" />
+            <p>متأسفانه هنوز کتابی در این دسته‌بندی اضافه نشده است.</p>
+          </div>
+        )}
+      </FadeIn>
     </div>
   );
 }
