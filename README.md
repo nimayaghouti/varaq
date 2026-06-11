@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 Varaq (ورق) - Modern E-Commerce Bookstore
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js_16-Black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-443E38?style=for-the-badge&logo=react&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-First, run the development server:
+Varaq is a highly optimized, serverless e-commerce frontend application built to demonstrate advanced React and Next.js architectural patterns. It features a fully functional shopping experience with dynamic routing, fuzzy searching, URL-driven filtering, and persistent cart management.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🌐 **([Live Demo on Vercel](https://varaq.vercel.app/))**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Technical Highlights & Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project was developed with a strict focus on **Performance, SEO, and Clean Architecture**, simulating a real-world production environment using a static JSON database hosted on GitHub.
 
-## Learn More
+### 🚀 Next.js 16 App Router & Server Components
 
-To learn more about Next.js, take a look at the following resources:
+- **Static Site Generation (SSG):** Utilized `generateStaticParams` to pre-render dynamic routes (`/books/[id]` and `/genres/[genre]`) at build time for instant page loads.
+- **Streaming & Suspense:** Implemented `loading.tsx` boundaries with custom skeleton loaders to ensure a fluid, non-blocking UI during data fetching.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🔍 Advanced URL-Driven Interactivity
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Server-Side Fuzzy Search:** Integrated `Fuse.js` into Server Actions, combined with a custom `useDebounce` hook, to provide typo-tolerant search without bloating the client bundle.
+- **Deep-Linkable Filters:** Built a complex filtering and sorting system (Price, Genres, Sorting) that perfectly synchronizes with the browser's URL via `useSearchParams`, making every specific search state fully shareable and SEO-friendly.
 
-## Deploy on Vercel
+### 🛒 State Management & UI/UX
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Persistent Cart:** Managed global cart state using **Zustand** with local storage persistence, elegantly resolving Next.js hydration mismatches using custom derived-state hooks.
+- **Modern UI:** Designed an organic, warm library aesthetic using **Tailwind CSS v4**, featuring "blob" shapes, fluid Framer Motion page transitions, and full Light/Dark mode support.
+- **Resilient Assets:** Engineered a custom `BookImage` wrapper around `next/image` to gracefully handle broken external image links with SVG fallbacks.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4 & `shadcn/ui` (Radix UI)
+- **State Management:** Zustand
+- **Search Engine:** Fuse.js
+- **Animations:** Framer Motion
+- **Form Handling:** Formspree API (Serverless, native fetch)
+- **Deployment:** Vercel
+
+---
+
+## ⚙️ Getting Started
+
+To run this project locally:
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/nimayaghouti/varaq.git
+   cd varaq
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+> **Note:** The application fetches its data from a public GitHub repository. Ensure you have an active internet connection for the initial data fetch.
+
+---
+
+## 🏗️ Architecture Overview
+
+- `app/`: Contains the App Router segments, layouts, and loading states.
+- `components/`: Modular UI pieces categorized into `shared`, `layout`, and `ui` (shadcn).
+- `lib/data/`: Server-side logic for fetching, filtering, and searching the mock database.
+- `store/`: Zustand global state configuration.
+- `hooks/`: Custom React hooks (e.g., `useDebounce`, `useCart`).
+
+---
+
+_Designed and developed as a technical portfolio project._
