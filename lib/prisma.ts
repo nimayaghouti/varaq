@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 
-// جلوگیری از ساخت کانکشن‌های متعدد در محیط Development (Hot Reload)
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
