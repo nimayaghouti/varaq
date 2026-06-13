@@ -3,13 +3,18 @@ import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { auth } from '@/auth';
+
 import { CartButton } from '@/components/layout/CartButton';
 import { MobileMenu } from '@/components/layout/MobileMenu';
 import { Navigation } from '@/components/layout/Navigation';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
+import { UserMenu } from '@/components/layout/UserMenu';
 import { Button } from '@/components/ui/button';
 
-export function Header() {
+export async function Header() {
+  const session = await auth();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto px-4 md:px-8 flex h-16 items-center justify-between">
@@ -41,6 +46,8 @@ export function Header() {
           </Button>
 
           <CartButton />
+
+          <UserMenu user={session?.user} />
 
           <div className="mx-1 h-6 w-px bg-border hidden sm:block"></div>
 
