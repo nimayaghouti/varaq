@@ -14,32 +14,38 @@ export async function registerAction(values: z.infer<typeof RegisterSchema>) {
     const validatedFields = RegisterSchema.safeParse(values);
 
     if (!validatedFields.success) {
-      return { error: 'اطلاعات وارد شده نامعتبر است!' };
+      return { fieldErrors: z.flattenError(validatedFields.error).fieldErrors };
     }
 
-    const { email, password, name } = validatedFields.data;
+    const { email, password } = validatedFields.data;
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return { error: 'این ایمیل قبلاً در سیستم ثبت شده است!' };
+      return {
+        fieldErrors: { email: ['این ایمیل قبلاً در سیستم ثبت شده است!'] },
+      };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.create({
       data: {
-        name,
         email,
         password: hashedPassword,
       },
     });
 
-    return { success: 'ثبت‌نام با موفقیت انجام شد! حالا می‌توانید وارد شوید.' };
+    await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+
+    return { success: 'حساب شما ایجاد و وارد شدید!' };
   } catch (error) {
-    console.error(error);
+    if (error instanceof AuthError) {
+      return { error: 'خطایی در ورود خودکار رخ داد. لطفاً دستی وارد شوید.' };
+    }
     return { error: 'خطایی در سمت سرور رخ داد!' };
   }
 }
@@ -72,4 +78,8 @@ export async function loginAction(values: z.infer<typeof LoginSchema>) {
     }
     throw error;
   }
+}
+
+export async function googleLoginAction() {
+  await signIn('google', { redirectTo: '/' });
 }
