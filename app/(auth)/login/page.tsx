@@ -4,7 +4,7 @@ import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -18,11 +18,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { googleLoginAction, loginAction } from '@/lib/actions/auth';
 import { LoginSchema } from '@/lib/validations/auth';
 
-export default function LoginPage() {
+function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[] | undefined>>(
@@ -67,7 +68,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="border-border/50 shadow-lg">
+    <Card className="border-border/50 shadow-lg w-full">
       <CardHeader className="text-center space-y-2">
         <CardTitle className="text-2xl font-bold">ورود به حساب</CardTitle>
         <CardDescription>ایمیل و رمز عبور خود را وارد کنید</CardDescription>
@@ -177,5 +178,39 @@ export default function LoginPage() {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+function LoginSkeleton() {
+  return (
+    <Card className="border-border/50 shadow-lg w-full">
+      <CardHeader className="text-center space-y-4 pt-8">
+        <Skeleton className="h-8 w-1/2 mx-auto" />
+        <Skeleton className="h-4 w-3/4 mx-auto" />
+      </CardHeader>
+      <CardContent className="space-y-6 mt-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <Skeleton className="h-10 w-full mt-4" />
+        <Skeleton className="h-10 w-full mt-8" />
+      </CardContent>
+      <CardFooter className="justify-center border-t border-border/50 pt-6 pb-6">
+        <Skeleton className="h-4 w-2/3" />
+      </CardFooter>
+    </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginSkeleton />}>
+      <LoginForm />
+    </Suspense>
   );
 }
