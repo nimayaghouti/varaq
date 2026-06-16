@@ -14,7 +14,7 @@ export async function searchBooks(query: string): Promise<Book[]> {
   }
 
   const fuse = new Fuse(books, {
-    keys: ['title', 'author', 'genre'],
+    keys: ['title', 'author', 'genres'],
     threshold: 0.3,
     ignoreLocation: true,
   });
