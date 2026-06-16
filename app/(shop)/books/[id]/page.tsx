@@ -96,7 +96,7 @@ export default async function BookDetailsPage({ params }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {book.genre.map(g => (
+              {book.genres.map(g => (
                 <Badge
                   key={g}
                   variant="secondary"

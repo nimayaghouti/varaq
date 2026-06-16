@@ -9,7 +9,8 @@ import { BookGrid } from '@/components/shared/BookGrid';
 import { FadeIn } from '@/components/shared/FadeIn';
 import { Button } from '@/components/ui/button';
 
-import { getBooks, getGenres } from '@/lib/data/client';
+import { getGenres } from '@/lib/data/client';
+import { prisma } from '@/lib/prisma';
 
 type Props = {
   params: Promise<{ genre: string }>;
@@ -43,8 +44,9 @@ export default async function GenreFilterPage({ params }: Props) {
     notFound();
   }
 
-  const books = await getBooks();
-  const filteredBooks = books.filter(book => book.genre.includes(decodedGenre));
+  const filteredBooks = await prisma.book.findMany({
+    where: { genres: { has: decodedGenre } },
+  });
 
   return (
     <div className="flex flex-col gap-8 pb-8">
