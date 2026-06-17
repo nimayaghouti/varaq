@@ -7,11 +7,17 @@ export const authConfig = {
   },
   providers: [],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;
         token.id = user.id as string;
       }
+
+      if (trigger === 'update' && session?.user) {
+        if (session.user.name) token.name = session.user.name;
+        if (session.user.image) token.picture = session.user.image;
+      }
+
       return token;
     },
     async session({ session, token }) {

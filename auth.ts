@@ -9,7 +9,7 @@ import { LoginSchema } from '@/lib/validations/auth';
 
 import { authConfig } from './auth.config';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
