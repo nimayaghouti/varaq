@@ -52,7 +52,7 @@ export function BookCard({ book }: BookCardProps) {
 
       <CardContent className="p-4 pt-0 mt-auto">
         <div className="flex flex-wrap gap-1.5 mt-2">
-          {book.genre.slice(0, 2).map(g => (
+          {book.genres.slice(0, 2).map(g => (
             <Badge
               key={g}
               variant="secondary"
@@ -61,12 +61,12 @@ export function BookCard({ book }: BookCardProps) {
               {g}
             </Badge>
           ))}
-          {book.genre.length > 2 && (
+          {book.genres.length > 2 && (
             <Badge
               variant="outline"
               className="text-[10px] font-normal px-1.5 py-0.5 text-muted-foreground border-border"
             >
-              +{book.genre.length - 2}
+              +{book.genres.length - 2}
             </Badge>
           )}
         </div>

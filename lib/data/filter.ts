@@ -1,6 +1,8 @@
-import { Book } from '@/types';
+import { Prisma } from '@prisma/client';
 
-import { getBooks } from './client';
+import { prisma } from '@/lib/prisma';
+
+import { Book } from '@/types';
 
 export interface FilterParams {
   sort?: string;
@@ -10,40 +12,44 @@ export interface FilterParams {
 }
 
 export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
-  let books = await getBooks();
+  const where: Prisma.BookWhereInput = {};
 
-  if (params.minPrice !== undefined) {
-    books = books.filter(b => b.price >= params.minPrice!);
-  }
-  if (params.maxPrice !== undefined) {
-    books = books.filter(b => b.price <= params.maxPrice!);
+  if (params.minPrice !== undefined || params.maxPrice !== undefined) {
+    where.price = {};
+    if (params.minPrice !== undefined) where.price.gte = params.minPrice;
+    if (params.maxPrice !== undefined) where.price.lte = params.maxPrice;
   }
 
   if (params.genres && params.genres.length > 0) {
-    books = books.filter(b => b.genre.some(g => params.genres!.includes(g)));
+    where.genres = { hasSome: params.genres };
   }
+
+  let orderBy: Prisma.BookOrderByWithRelationInput = { createdAt: 'desc' };
 
   if (params.sort) {
     switch (params.sort) {
       case 'price_asc':
-        books.sort((a, b) => a.price - b.price);
+        orderBy = { price: 'asc' };
         break;
       case 'price_desc':
-        books.sort((a, b) => b.price - a.price);
+        orderBy = { price: 'desc' };
         break;
       case 'year_desc':
-        books.sort((a, b) => b.publication_year - a.publication_year);
+        orderBy = { publication_year: 'desc' };
         break;
       case 'year_asc':
-        books.sort((a, b) => a.publication_year - b.publication_year);
+        orderBy = { publication_year: 'asc' };
         break;
       case 'title_asc':
-        books.sort((a, b) => a.title.localeCompare(b.title, 'fa'));
+        orderBy = { title: 'asc' };
         break;
       default:
         break;
     }
   }
 
-  return books;
+  return prisma.book.findMany({
+    where,
+    orderBy,
+  });
 }

@@ -1,29 +1,31 @@
-import { DATA_URL } from '@/constants/config';
-import { Book, DatabaseSchema, Genre } from '@/types';
+import { unstable_cache } from 'next/cache';
 
-export async function getDatabase(): Promise<DatabaseSchema> {
-  try {
-    const response = await fetch(DATA_URL, {
-      next: { revalidate: 3600 },
+import { prisma } from '@/lib/prisma';
+
+import { Book, Genre } from '@/types';
+
+export const getBooks = unstable_cache(
+  async (): Promise<Book[]> => {
+    return prisma.book.findMany({
+      orderBy: { createdAt: 'desc' },
     });
+  },
+  ['all-books'],
+  {
+    revalidate: 3600,
+    tags: ['books'],
+  },
+);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching database:', error);
-    return { books: [], genres: [] };
-  }
-}
-
-export async function getBooks(): Promise<Book[]> {
-  const db = await getDatabase();
-  return db.books;
-}
-
-export async function getGenres(): Promise<Genre[]> {
-  const db = await getDatabase();
-  return db.genres;
-}
+export const getGenres = unstable_cache(
+  async (): Promise<Genre[]> => {
+    return prisma.genre.findMany({
+      orderBy: { name: 'asc' },
+    });
+  },
+  ['all-genres'],
+  {
+    revalidate: 86400,
+    tags: ['genres'],
+  },
+);
