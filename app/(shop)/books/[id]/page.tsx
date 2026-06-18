@@ -1,7 +1,16 @@
-import { BookOpen, Calendar, ShoppingBag, User } from 'lucide-react';
+import {
+  BookOpen,
+  Calendar,
+  ShoppingBag,
+  Star,
+  StarHalf,
+  User,
+} from 'lucide-react';
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+
+import { auth } from '@/auth';
 
 import { AddToCartButton } from '@/components/shared/AddToCartButton';
 import { BookImage } from '@/components/shared/BookImage';
@@ -12,7 +21,9 @@ import { Separator } from '@/components/ui/separator';
 import { getBookById, getSimilarBooks } from '@/lib/data/books';
 import { getBooks } from '@/lib/data/client';
 import { formatPrice } from '@/lib/format';
+import { prisma } from '@/lib/prisma';
 
+import { ReviewSection } from './_components/ReviewSection';
 import { SimilarBooks } from './_components/SimilarBooks';
 
 type Props = {
@@ -51,6 +62,22 @@ export default async function BookDetailsPage({ params }: Props) {
     notFound();
   }
 
+  const session = await auth();
+
+  const reviews = await prisma.review.findMany({
+    where: { bookId: id },
+    include: {
+      user: { select: { id: true, name: true, image: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  const totalReviews = reviews.length;
+  const averageRating =
+    totalReviews > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+      : 0;
+
   const similarBooks = await getSimilarBooks(book);
 
   return (
@@ -78,6 +105,48 @@ export default async function BookDetailsPage({ params }: Props) {
               <p className="text-xl text-muted-foreground font-medium">
                 اثر {book.author}
               </p>
+
+              <div className="flex items-center gap-2">
+                <div className="flex" dir="ltr">
+                  {[1, 2, 3, 4, 5].map(star => {
+                    const isFull = averageRating >= star;
+                    const isHalf =
+                      averageRating >= star - 0.5 && averageRating < star;
+
+                    if (isFull) {
+                      return (
+                        <Star
+                          key={star}
+                          className="size-4 fill-yellow-500 text-yellow-500"
+                        />
+                      );
+                    } else if (isHalf) {
+                      return (
+                        <StarHalf
+                          key={star}
+                          className="size-4 fill-yellow-500 text-yellow-500"
+                        />
+                      );
+                    } else {
+                      return (
+                        <Star
+                          key={star}
+                          className="size-4 text-muted-foreground/30"
+                        />
+                      );
+                    }
+                  })}
+                </div>
+                {totalReviews > 0 ? (
+                  <span className="text-sm font-medium">
+                    ({averageRating.toFixed(1)}) از {totalReviews} رأی
+                  </span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    امتیازی ثبت نشده است
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
@@ -135,6 +204,12 @@ export default async function BookDetailsPage({ params }: Props) {
           </div>
         </div>
       </FadeIn>
+
+      <ReviewSection
+        bookId={book.id}
+        reviews={reviews}
+        currentUserId={session?.user?.id}
+      />
 
       {similarBooks.length > 0 && (
         <div className="mt-16">
