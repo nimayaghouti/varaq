@@ -162,10 +162,11 @@ export function CartClient() {
         </div>
 
         <Button
+          asChild
           size="lg"
           className="w-full font-bold rounded-xl text-base mt-2 cursor-pointer"
         >
-          تکمیل خرید
+          <Link href="/checkout">تکمیل خرید</Link>
         </Button>
       </div>
     </div>
