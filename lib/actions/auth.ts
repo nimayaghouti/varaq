@@ -6,10 +6,14 @@ import * as z from 'zod';
 
 import { signIn } from '@/auth';
 
+import { mergeLocalCartWithDatabase } from '@/lib/actions/cart';
 import { prisma } from '@/lib/prisma';
 import { LoginSchema, RegisterSchema } from '@/lib/validations/auth';
 
-export async function registerAction(values: z.infer<typeof RegisterSchema>) {
+export async function registerAction(
+  values: z.infer<typeof RegisterSchema>,
+  localCart: { id: string; quantity: number }[] = [],
+) {
   try {
     const validatedFields = RegisterSchema.safeParse(values);
 
@@ -28,7 +32,7 @@ export async function registerAction(values: z.infer<typeof RegisterSchema>) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -41,7 +45,12 @@ export async function registerAction(values: z.infer<typeof RegisterSchema>) {
       redirect: false,
     });
 
-    return { success: 'حساب شما ایجاد و وارد شدید!' };
+    const mergeResult = await mergeLocalCartWithDatabase(localCart, newUser.id);
+
+    return {
+      success: 'حساب شما ایجاد و وارد شدید!',
+      mergedCart: mergeResult.success ? mergeResult.mergedCart : null,
+    };
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: 'خطایی در ورود خودکار رخ داد. لطفاً دستی وارد شوید.' };
@@ -50,7 +59,10 @@ export async function registerAction(values: z.infer<typeof RegisterSchema>) {
   }
 }
 
-export async function loginAction(values: z.infer<typeof LoginSchema>) {
+export async function loginAction(
+  values: z.infer<typeof LoginSchema>,
+  localCart: { id: string; quantity: number }[] = [],
+) {
   try {
     const validatedFields = LoginSchema.safeParse(values);
 
@@ -59,6 +71,7 @@ export async function loginAction(values: z.infer<typeof LoginSchema>) {
     }
 
     const { email, password } = validatedFields.data;
+    const user = await prisma.user.findUnique({ where: { email } });
 
     await signIn('credentials', {
       email,
@@ -66,7 +79,12 @@ export async function loginAction(values: z.infer<typeof LoginSchema>) {
       redirect: false,
     });
 
-    return { success: 'با موفقیت وارد شدید!' };
+    const mergeResult = await mergeLocalCartWithDatabase(localCart, user!.id);
+
+    return {
+      success: 'با موفقیت وارد شدید!',
+      mergedCart: mergeResult.success ? mergeResult.mergedCart : null,
+    };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
