@@ -75,12 +75,18 @@ interface LocalCartItem {
   quantity: number;
 }
 
-export async function mergeLocalCartWithDatabase(localItems: LocalCartItem[]) {
+export async function mergeLocalCartWithDatabase(
+  localItems: LocalCartItem[],
+  forceUserId?: string,
+) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { error: 'Unauthorized' };
+    let userId = forceUserId;
 
-    const userId = session.user.id;
+    if (!userId) {
+      const session = await auth();
+      if (!session?.user?.id) return { error: 'Unauthorized' };
+      userId = session.user.id;
+    }
 
     const cart = await prisma.cart.upsert({
       where: { userId },
