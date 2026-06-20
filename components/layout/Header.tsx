@@ -12,8 +12,23 @@ import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { Button } from '@/components/ui/button';
 
+import { getUserCart } from '@/lib/actions/cart';
+
 export async function Header() {
   const session = await auth();
+
+  let dbCartItems = null;
+  if (session?.user) {
+    const cartData = await getUserCart();
+    if (cartData && cartData.items) {
+      dbCartItems = cartData.items.map(item => ({
+        ...item.book,
+        quantity: item.quantity,
+      }));
+    } else {
+      dbCartItems = [];
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -45,7 +60,7 @@ export async function Header() {
             </Link>
           </Button>
 
-          <CartButton />
+          <CartButton dbCartItems={dbCartItems} />
 
           <UserMenu user={session?.user} />
 

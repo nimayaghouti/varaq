@@ -3,14 +3,28 @@
 import { ShoppingBag } from 'lucide-react';
 
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-import { useCart } from '@/hooks';
+import { CartItem } from '@/store/cart-store';
 
-export function CartButton() {
-  const { items, isMounted } = useCart();
+import { useCart } from '@/hooks/use-cart';
+
+interface CartButtonProps {
+  dbCartItems?: CartItem[] | null;
+}
+
+export function CartButton({ dbCartItems }: CartButtonProps) {
+  const { items, setCart, isMounted } = useCart();
+
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    if (dbCartItems !== undefined && dbCartItems !== null) {
+      setCart(dbCartItems);
+    }
+  }, [dbCartItems, setCart]);
 
   return (
     <Button
