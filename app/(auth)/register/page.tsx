@@ -19,6 +19,10 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
+import { CartItem } from '@/store/cart-store';
+
+import { useCart } from '@/hooks';
+
 import { googleLoginAction, registerAction } from '@/lib/actions/auth';
 import { RegisterSchema } from '@/lib/validations/auth';
 
@@ -31,6 +35,8 @@ export default function RegisterPage() {
   );
 
   const router = useRouter();
+
+  const { items, setCart } = useCart();
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,14 +57,18 @@ export default function RegisterPage() {
       return;
     }
 
+    const localCart = items.map(i => ({ id: i.id, quantity: i.quantity }));
+
     try {
-      const result = await registerAction(data);
+      const result = await registerAction(data, localCart);
 
       if (result?.fieldErrors) {
         setErrors(result.fieldErrors);
       } else if (result?.error) {
         toast.error(result.error);
       } else if (result?.success) {
+        if (result.mergedCart) setCart(result.mergedCart as CartItem[]);
+
         toast.success(result.success);
         router.push('/');
         router.refresh();
