@@ -104,8 +104,14 @@ export function CartClient() {
                 <div className="flex items-center gap-3 bg-muted/50 p-1 rounded-lg border border-border/50">
                   <Button
                     variant="ghost"
-                    className="h-8 w-8 p-0 rounded-md cursor-pointer hover:bg-background"
+                    className="h-8 w-8 p-0 rounded-md cursor-pointer hover:bg-background disabled:opacity-30 disabled:cursor-not-allowed"
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    disabled={item.quantity >= item.stock}
+                    title={
+                      item.quantity >= item.stock
+                        ? 'به سقف موجودی رسیده‌اید'
+                        : ''
+                    }
                   >
                     <Plus className="size-4" />
                   </Button>
