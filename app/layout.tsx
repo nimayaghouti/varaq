@@ -4,6 +4,7 @@ import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 import { cn } from '@/lib/utils';
 
@@ -34,7 +35,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           <Toaster position="bottom-left" richColors theme="system" />
         </ThemeProvider>
       </body>
