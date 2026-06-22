@@ -80,6 +80,9 @@ export default async function BookDetailsPage({ params }: Props) {
 
   const similarBooks = await getSimilarBooks(book);
 
+  const isOutOfStock = book.stock === 0;
+  const isLowStock = book.stock > 0 && book.stock < 5;
+
   return (
     <div className="flex flex-col pb-8">
       <FadeIn direction="up">
@@ -188,18 +191,32 @@ export default async function BookDetailsPage({ params }: Props) {
               </p>
             </div>
 
-            <div className="mt-auto pt-6 flex flex-col sm:flex-row items-center gap-4">
-              <div className="text-2xl md:text-3xl font-bold text-primary whitespace-nowrap w-full sm:w-auto text-center sm:text-right">
-                {formatPrice(book.price)}
+            {isLowStock && (
+              <div className="bg-orange-500/10 text-orange-600 border border-orange-500/20 px-4 py-2 rounded-lg text-sm font-bold w-fit">
+                تنها {book.stock} عدد از این کتاب در انبار باقی مانده است.
               </div>
-              <AddToCartButton
-                book={book}
-                size="lg"
-                className="w-full sm:w-auto font-bold rounded-xl gap-2 cursor-pointer"
-              >
-                <ShoppingBag className="size-5" />
-                افزودن به سبد خرید
-              </AddToCartButton>
+            )}
+
+            <div className="mt-auto pt-6 flex flex-col sm:flex-row items-center gap-4">
+              {isOutOfStock ? (
+                <div className="text-lg font-bold text-muted-foreground/70 w-full text-center bg-muted/30 py-3 rounded-xl border border-border/50">
+                  این کتاب فعلا موجود نیست
+                </div>
+              ) : (
+                <>
+                  <div className="text-2xl md:text-3xl font-bold text-primary whitespace-nowrap w-full sm:w-auto text-center sm:text-right">
+                    {formatPrice(book.price)}
+                  </div>
+                  <AddToCartButton
+                    book={book}
+                    size="lg"
+                    className="w-full sm:w-auto font-bold rounded-xl gap-2 cursor-pointer"
+                  >
+                    <ShoppingBag className="size-5" />
+                    افزودن به سبد خرید
+                  </AddToCartButton>
+                </>
+              )}
             </div>
           </div>
         </div>
