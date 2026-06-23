@@ -24,7 +24,8 @@ model User {
 
   accounts      Account[] 
   orders        Order[]   
-  reviews       Review[]  
+  reviews       Review[]
+  cart          Cart?  
 }
 
 model Account {
@@ -68,6 +69,7 @@ model Book {
 
   reviews          Review[]
   orderItems       OrderItem[]
+  cartItems        CartItem[]
 }
 
 model Order {
@@ -113,4 +115,24 @@ enum OrderStatus {
   PAID
   DELIVERED
   CANCELLED
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @unique @db.ObjectId 
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String   @db.ObjectId
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  bookId    String   @db.ObjectId
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  @@unique([cartId, bookId]) 
 }
