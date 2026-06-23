@@ -24,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { useCartStore } from '@/store/cart-store';
+
 interface UserMenuProps {
   user?: {
     name?: string | null;
@@ -121,7 +123,10 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive focus:text-destructive cursor-pointer gap-2"
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={async () => {
+            useCartStore.getState().clearLocalCart();
+            await signOut({ callbackUrl: '/' });
+          }}
         >
           <LogOut className="size-4" />
           <span>خروج از حساب</span>

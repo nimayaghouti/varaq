@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { clearCartDB, updateCartItemDB } from '@/lib/actions/cart';
+
 import { Book } from '@/types';
 
 export interface CartItem extends Book {
@@ -9,10 +11,12 @@ export interface CartItem extends Book {
 
 interface CartState {
   items: CartItem[];
+  setCart: (items: CartItem[]) => void;
   addItem: (book: Book) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  clearLocalCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
 }
@@ -22,28 +26,32 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: book => {
+      setCart: items => set({ items }),
+
+      addItem: async book => {
         const currentItems = get().items;
         const existingItem = currentItems.find(item => item.id === book.id);
+        const newQuantity = existingItem ? existingItem.quantity + 1 : 1;
 
         if (existingItem) {
           set({
             items: currentItems.map(item =>
-              item.id === book.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item,
+              item.id === book.id ? { ...item, quantity: newQuantity } : item,
             ),
           });
         } else {
           set({ items: [...currentItems, { ...book, quantity: 1 }] });
         }
+
+        await updateCartItemDB(book.id, newQuantity);
       },
 
-      removeItem: id => {
+      removeItem: async id => {
         set({ items: get().items.filter(item => item.id !== id) });
+        await updateCartItemDB(id, 0);
       },
 
-      updateQuantity: (id, quantity) => {
+      updateQuantity: async (id, quantity) => {
         if (quantity <= 0) {
           get().removeItem(id);
           return;
@@ -53,9 +61,17 @@ export const useCartStore = create<CartState>()(
             item.id === id ? { ...item, quantity } : item,
           ),
         });
+        await updateCartItemDB(id, quantity);
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: async () => {
+        set({ items: [] });
+        await clearCartDB();
+      },
+
+      clearLocalCart: () => {
+        set({ items: [] });
+      },
 
       getTotalItems: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);

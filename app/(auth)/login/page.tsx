@@ -20,6 +20,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { CartItem } from '@/store/cart-store';
+
+import { useCart } from '@/hooks';
+
 import { googleLoginAction, loginAction } from '@/lib/actions/auth';
 import { LoginSchema } from '@/lib/validations/auth';
 
@@ -33,6 +37,8 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+
+  const { items, setCart } = useCart();
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,11 +59,16 @@ function LoginForm() {
       return;
     }
 
+    const localCart = items.map(i => ({ id: i.id, quantity: i.quantity }));
+
     try {
-      const result = await loginAction(data);
+      const result = await loginAction(data, localCart);
+
       if (result?.error) {
         toast.error(result.error);
       } else {
+        if (result.mergedCart) setCart(result.mergedCart as CartItem[]);
+
         toast.success(result?.success || 'با موفقیت وارد شدید');
         router.push(callbackUrl);
         router.refresh();
