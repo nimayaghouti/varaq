@@ -36,6 +36,7 @@ export default async function BooksPage({ searchParams }: Props) {
       typeof resolvedParams.genres === 'string'
         ? resolvedParams.genres.split(',')
         : undefined,
+    inStock: resolvedParams.inStock === 'true',
   };
 
   const [books, genres] = await Promise.all([

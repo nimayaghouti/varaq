@@ -48,6 +48,12 @@ export default async function GenreFilterPage({ params }: Props) {
     where: { genres: { has: decodedGenre } },
   });
 
+  filteredBooks.sort((a, b) => {
+    const aInStock = a.stock > 0 ? 1 : 0;
+    const bInStock = b.stock > 0 ? 1 : 0;
+    return bInStock - aInStock;
+  });
+
   return (
     <div className="flex flex-col gap-8 pb-8">
       <div className="flex flex-col gap-4 bg-muted/30 p-8 rounded-2xl border border-border/50">
