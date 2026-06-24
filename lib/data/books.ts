@@ -16,11 +16,29 @@ export async function getSimilarBooks(
 ): Promise<Book[]> {
   if (!currentBook.genres || currentBook.genres.length === 0) return [];
 
-  return prisma.book.findMany({
+  const books = await prisma.book.findMany({
     where: {
       id: { not: currentBook.id },
       genres: { hasSome: currentBook.genres },
     },
-    take: limit,
   });
+
+  return books
+    .sort((a, b) => {
+      const aInStock = a.stock > 0 ? 1 : 0;
+      const bInStock = b.stock > 0 ? 1 : 0;
+
+      if (aInStock !== bInStock) {
+        return bInStock - aInStock;
+      }
+
+      const aMatches = a.genres.filter(g =>
+        currentBook.genres.includes(g),
+      ).length;
+      const bMatches = b.genres.filter(g =>
+        currentBook.genres.includes(g),
+      ).length;
+      return bMatches - aMatches;
+    })
+    .slice(0, limit);
 }

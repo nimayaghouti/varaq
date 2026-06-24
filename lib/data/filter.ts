@@ -9,6 +9,7 @@ export interface FilterParams {
   minPrice?: number;
   maxPrice?: number;
   genres?: string[];
+  inStock?: boolean;
 }
 
 export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
@@ -22,6 +23,10 @@ export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
 
   if (params.genres && params.genres.length > 0) {
     where.genres = { hasSome: params.genres };
+  }
+
+  if (params.inStock) {
+    where.stock = { gt: 0 };
   }
 
   let orderBy: Prisma.BookOrderByWithRelationInput = { createdAt: 'desc' };
@@ -48,8 +53,14 @@ export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
     }
   }
 
-  return prisma.book.findMany({
+  const books = await prisma.book.findMany({
     where,
     orderBy,
+  });
+
+  return books.sort((a, b) => {
+    const aInStock = a.stock > 0 ? 1 : 0;
+    const bInStock = b.stock > 0 ? 1 : 0;
+    return bInStock - aInStock;
   });
 }
