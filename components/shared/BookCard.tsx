@@ -18,6 +18,9 @@ interface BookCardProps {
 }
 
 export function BookCard({ book }: BookCardProps) {
+  const isOutOfStock = book.stock === 0;
+  const isLowStock = book.stock > 0 && book.stock < 5;
+
   return (
     <Card className="group overflow-hidden flex flex-col h-full transition-all hover:shadow-md border-border/50 hover:border-primary/40 bg-card">
       <Link
@@ -31,6 +34,11 @@ export function BookCard({ book }: BookCardProps) {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
         />
+        {isLowStock && (
+          <div className="absolute top-2 right-2 bg-orange-500/90 backdrop-blur text-white text-xs font-bold px-2 py-1 rounded-md z-10">
+            {book.stock} عدد باقی مانده
+          </div>
+        )}
       </Link>
 
       <CardHeader className="p-4 pb-2">
@@ -72,16 +80,24 @@ export function BookCard({ book }: BookCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="px-4 py-2 flex justify-between items-center gap-2">
-        <span className="font-bold text-primary text-sm md:text-base whitespace-nowrap">
-          {formatPrice(book.price)}
-        </span>
-        <AddToCartButton
-          book={book}
-          size="sm"
-          variant="outline"
-          className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors cursor-pointer"
-        />
+      <CardFooter className="px-4 py-3 flex justify-between items-center gap-2 border-t border-border/30 bg-muted/10 mt-auto">
+        {isOutOfStock ? (
+          <span className="font-bold text-muted-foreground/70 text-sm md:text-base whitespace-nowrap mx-auto">
+            ناموجود
+          </span>
+        ) : (
+          <>
+            <span className="font-bold text-primary text-sm md:text-base whitespace-nowrap">
+              {formatPrice(book.price)}
+            </span>
+            <AddToCartButton
+              book={book}
+              size="sm"
+              variant="outline"
+              className="group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary disabled:group-hover:bg-transparent disabled:group-hover:text-muted-foreground disabled:group-hover:border-border transition-colors cursor-pointer disabled:cursor-not-allowed"
+            />
+          </>
+        )}
       </CardFooter>
     </Card>
   );

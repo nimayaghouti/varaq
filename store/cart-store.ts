@@ -31,7 +31,13 @@ export const useCartStore = create<CartState>()(
       addItem: async book => {
         const currentItems = get().items;
         const existingItem = currentItems.find(item => item.id === book.id);
-        const newQuantity = existingItem ? existingItem.quantity + 1 : 1;
+        const currentQuantity = existingItem ? existingItem.quantity : 0;
+
+        if (currentQuantity >= book.stock) {
+          return;
+        }
+
+        const newQuantity = currentQuantity + 1;
 
         if (existingItem) {
           set({
@@ -56,6 +62,12 @@ export const useCartStore = create<CartState>()(
           get().removeItem(id);
           return;
         }
+
+        const item = get().items.find(i => i.id === id);
+        if (item && quantity > item.stock) {
+          return;
+        }
+
         set({
           items: get().items.map(item =>
             item.id === id ? { ...item, quantity } : item,
