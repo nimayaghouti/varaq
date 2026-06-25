@@ -7,9 +7,11 @@ import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-import { CartItem } from '@/store/cart-store';
+import { CartItem, useCartStore } from '@/store/cart-store';
 
 import { useCart } from '@/hooks/use-cart';
+
+import { mergeLocalCartWithDatabase } from '@/lib/actions/cart';
 
 interface CartButtonProps {
   dbCartItems?: CartItem[] | null;
@@ -22,7 +24,22 @@ export function CartButton({ dbCartItems }: CartButtonProps) {
 
   useEffect(() => {
     if (dbCartItems !== undefined && dbCartItems !== null) {
-      setCart(dbCartItems);
+      const state = useCartStore.getState();
+
+      if (state.syncPending && state.items.length > 0) {
+        const localCart = state.items.map(i => ({
+          id: i.id,
+          quantity: i.quantity,
+        }));
+
+        mergeLocalCartWithDatabase(localCart).then(res => {
+          if (res?.success && res.mergedCart) {
+            setCart(res.mergedCart as CartItem[]);
+          }
+        });
+      } else {
+        setCart(dbCartItems);
+      }
     }
   }, [dbCartItems, setCart]);
 
