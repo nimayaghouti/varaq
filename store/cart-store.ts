@@ -11,6 +11,7 @@ export interface CartItem extends Book {
 
 interface CartState {
   items: CartItem[];
+  syncPending: boolean;
   setCart: (items: CartItem[]) => void;
   addItem: (book: Book) => void;
   removeItem: (id: string) => void;
@@ -25,8 +26,9 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      syncPending: false,
 
-      setCart: items => set({ items }),
+      setCart: items => set({ items, syncPending: false }),
 
       addItem: async book => {
         const currentItems = get().items;
@@ -49,12 +51,16 @@ export const useCartStore = create<CartState>()(
           set({ items: [...currentItems, { ...book, quantity: 1 }] });
         }
 
-        await updateCartItemDB(book.id, newQuantity);
+        const res = await updateCartItemDB(book.id, newQuantity);
+        if (res?.error === 'Unauthorized') {
+          set({ syncPending: true });
+        }
       },
 
       removeItem: async id => {
         set({ items: get().items.filter(item => item.id !== id) });
-        await updateCartItemDB(id, 0);
+        const res = await updateCartItemDB(id, 0);
+        if (res?.error === 'Unauthorized') set({ syncPending: true });
       },
 
       updateQuantity: async (id, quantity) => {
@@ -73,16 +79,17 @@ export const useCartStore = create<CartState>()(
             item.id === id ? { ...item, quantity } : item,
           ),
         });
-        await updateCartItemDB(id, quantity);
+        const res = await updateCartItemDB(id, quantity);
+        if (res?.error === 'Unauthorized') set({ syncPending: true });
       },
 
       clearCart: async () => {
-        set({ items: [] });
+        set({ items: [], syncPending: false });
         await clearCartDB();
       },
 
       clearLocalCart: () => {
-        set({ items: [] });
+        set({ items: [], syncPending: false });
       },
 
       getTotalItems: () => {
