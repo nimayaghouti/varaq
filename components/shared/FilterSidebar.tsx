@@ -25,6 +25,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 
 import { formatPrice } from '@/lib/format';
 import { Genre } from '@/types';
@@ -41,6 +42,7 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
   const currentMinPrice = Number(searchParams.get('minPrice')) || 0;
   const currentMaxPrice = Number(searchParams.get('maxPrice')) || 5000000;
   const currentGenres = searchParams.get('genres')?.split(',') || [];
+  const currentInStock = searchParams.get('inStock') === 'true';
 
   const [priceRange, setPriceRange] = useState([
     currentMinPrice,
@@ -109,7 +111,8 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
       {(currentSort ||
         currentMinPrice > 0 ||
         currentMaxPrice < 5000000 ||
-        currentGenres.length > 0) && (
+        currentGenres.length > 0 ||
+        currentInStock) && (
         <Button
           variant="ghost"
           onClick={clearFilters}
@@ -119,6 +122,26 @@ export function FilterSidebar({ genres }: FilterSidebarProps) {
           پاک کردن فیلترها
         </Button>
       )}
+
+      <div className="bg-primary/5 p-4 rounded-xl border border-primary/20">
+        <div className="flex items-center justify-between">
+          <Label
+            htmlFor="inStock"
+            className="text-sm font-bold leading-none cursor-pointer select-none text-primary"
+          >
+            فقط کالاهای موجود
+          </Label>
+          <Switch
+            id="inStock"
+            checked={currentInStock}
+            onCheckedChange={checked =>
+              updateFilters('inStock', checked ? 'true' : null)
+            }
+            className="cursor-pointer"
+            dir="ltr"
+          />
+        </div>
+      </div>
 
       <div className="space-y-4">
         <h3 className="font-bold flex items-center gap-2">

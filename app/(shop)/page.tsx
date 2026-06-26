@@ -20,8 +20,10 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const books = await getBooks();
 
-  const newArrivals = books.slice(0, 5);
-  const popularBooks = books.slice(5, 10);
+  const inStockBooks = books.filter(book => book.stock > 0);
+
+  const newArrivals = inStockBooks.slice(0, 5);
+  const popularBooks = inStockBooks.slice(5, 10);
 
   return (
     <div className="flex flex-col gap-12 pb-8">

@@ -20,5 +20,12 @@ export async function searchBooks(query: string): Promise<Book[]> {
   });
 
   const results = fuse.search(query);
-  return results.map(result => result.item);
+
+  return results
+    .map(result => result.item)
+    .sort((a, b) => {
+      const aInStock = a.stock > 0 ? 1 : 0;
+      const bInStock = b.stock > 0 ? 1 : 0;
+      return bInStock - aInStock;
+    });
 }
