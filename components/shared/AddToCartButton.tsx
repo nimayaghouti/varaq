@@ -8,10 +8,10 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 import { useCartStore } from '@/store/cart-store';
 
@@ -54,8 +54,8 @@ export function AddToCartButton({
 
   if (isMaxReached) {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
+      <Popover>
+        <PopoverTrigger asChild>
           <span className="cursor-not-allowed">
             <Button
               className={className}
@@ -71,11 +71,14 @@ export function AddToCartButton({
               )}
             </Button>
           </span>
-        </TooltipTrigger>
-        <TooltipContent className="bg-destructive text-destructive-foreground font-bold [&>span>svg]:bg-destructive [&>span>svg]:fill-destructive">
-          <p>سقف موجودی انبار</p>
-        </TooltipContent>
-      </Tooltip>
+        </PopoverTrigger>
+        <PopoverContent
+          side="top"
+          className="w-auto px-3 py-2 bg-destructive text-destructive-foreground font-bold text-xs border-none"
+        >
+          سقف موجودی انبار
+        </PopoverContent>
+      </Popover>
     );
   }
 
