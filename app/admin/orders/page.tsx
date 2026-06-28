@@ -1,4 +1,4 @@
-import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 
 import Link from 'next/link';
 
@@ -12,11 +12,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { autoCancelExpiredOrders } from '@/lib/actions/orders';
 import { formatPrice } from '@/lib/format';
 import { prisma } from '@/lib/prisma';
 
-import { AddBookDialog } from './_components/AddBookDialog';
-import { BookActions } from './_components/BookActions';
+import { OrderStatusSelect } from './_components/OrderStatusSelect';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,41 +24,41 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function AdminBooksPage({ searchParams }: Props) {
+export default async function AdminOrdersPage({ searchParams }: Props) {
   const resolvedParams = await searchParams;
   const currentPage = Number(resolvedParams?.page) || 1;
 
-  const [totalBooks, books] = await Promise.all([
-    prisma.book.count(),
-    prisma.book.findMany({
+  await autoCancelExpiredOrders();
+
+  const [totalOrders, orders] = await Promise.all([
+    prisma.order.count(),
+    prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
       skip: (currentPage - 1) * ITEMS_PER_PAGE,
       take: ITEMS_PER_PAGE,
+      include: {
+        user: { select: { name: true, email: true } },
+        items: { include: { book: { select: { title: true } } } },
+      },
     }),
   ]);
 
-  const totalPages = Math.ceil(totalBooks / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalOrders / ITEMS_PER_PAGE);
 
   return (
     <div className="p-6 md:p-10 flex flex-col gap-6">
-      <div className="flex flex-col gap-2 bg-muted/30 p-8 rounded-2xl border border-border/50">
+      <div className="flex flex-col gap-2 bg-muted/30 p-8 rounded-2xl border border-border/50 shadow-sm">
         <div className="flex items-center gap-3 mb-2">
           <div className="bg-primary/10 p-2 rounded-lg">
-            <BookOpen className="size-6 text-primary" />
+            <ShoppingCart className="size-6 text-primary" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            مدیریت کتاب‌ها
+            مدیریت سفارشات
           </h1>
         </div>
         <p className="text-muted-foreground">
-          افزودن، ویرایش و حذف کتاب‌های فروشگاه
+          پیگیری و تغییر وضعیت سفارشات کاربران
         </p>
-      </div>
-      <div className="flex items-center justify-between flex-wrap">
-        <div className="text-sm text-muted-foreground">
-          {totalBooks} کتاب یافت شد
-        </div>
-        <AddBookDialog />
       </div>
 
       <div className="bg-card border border-border/50 rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -70,57 +70,90 @@ export default async function AdminBooksPage({ searchParams }: Props) {
                   ردیف
                 </TableHead>
                 <TableHead className="text-right py-4 font-bold">
-                  عنوان کتاب
+                  مشتری
                 </TableHead>
                 <TableHead className="text-right py-4 font-bold">
-                  نویسنده
+                  اقلام سفارش
                 </TableHead>
                 <TableHead className="text-right py-4 font-bold">
-                  قیمت
+                  مبلغ کل
                 </TableHead>
                 <TableHead className="text-right py-4 font-bold">
-                  موجودی
+                  کدرهگیری
                 </TableHead>
-                <TableHead className="text-center py-4 font-bold">
-                  عملیات
+                <TableHead className="text-right py-4 font-bold">
+                  تاریخ ثبت
+                </TableHead>
+                <TableHead className="text-center py-4 font-bold w-48">
+                  تغییر وضعیت
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {books.map((book, index) => (
-                <TableRow key={book.id}>
+              {orders.map((order, index) => (
+                <TableRow key={order.id}>
                   <TableCell className="text-center text-muted-foreground font-medium border-0">
                     {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                   </TableCell>
+                  <TableCell className="font-medium border-0">
+                    <div className="flex flex-col">
+                      <span>{order.user.name || 'بدون نام'}</span>
+                      <span
+                        className="text-xs text-muted-foreground text-end"
+                        dir="ltr"
+                      >
+                        {order.user.email}
+                      </span>
+                      {order.phone && (
+                        <span className="text-xs text-muted-foreground mt-1">
+                          {order.phone}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="border-0 max-w-50">
+                    <div className="flex flex-col gap-1">
+                      {order.items.map(item => (
+                        <span
+                          key={item.id}
+                          className="text-xs text-muted-foreground line-clamp-1"
+                          title={item.book.title}
+                        >
+                          {item.quantity}x {item.book.title}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-bold text-primary border-0">
+                    {formatPrice(order.totalAmount)}
+                  </TableCell>
                   <TableCell
-                    className="font-bold line-clamp-1 max-w-50 mt-2 border-0"
-                    title={book.title}
+                    className="text-sm font-medium border-0 text-end"
+                    dir="ltr"
                   >
-                    {book.title}
+                    {order.trackId || '-'}
                   </TableCell>
-                  <TableCell>{book.author}</TableCell>
-                  <TableCell>{formatPrice(book.price)}</TableCell>
-                  <TableCell>
-                    <span
-                      className={
-                        book.stock < 5 ? 'text-destructive font-bold' : ''
-                      }
-                    >
-                      {book.stock} عدد
-                    </span>
+                  <TableCell className="text-sm text-muted-foreground border-0">
+                    {new Intl.DateTimeFormat('fa-IR', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    }).format(order.createdAt)}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <BookActions book={book} />
+                  <TableCell className="text-center border-0">
+                    <OrderStatusSelect
+                      orderId={order.id}
+                      currentStatus={order.status}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
-              {books.length === 0 && (
+              {orders.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    هیچ کتابی در پایگاه داده یافت نشد.
+                    هیچ سفارشی یافت نشد.
                   </TableCell>
                 </TableRow>
               )}
@@ -141,16 +174,14 @@ export default async function AdminBooksPage({ searchParams }: Props) {
                   : 'cursor-pointer hover:bg-background'
               }
             >
-              <Link href={`/admin/books?page=${currentPage - 1}`}>
+              <Link href={`/admin/orders?page=${currentPage - 1}`}>
                 <ChevronRight className="size-4 ml-1" /> قبلی
               </Link>
             </Button>
-
             <span className="text-sm font-medium px-4 text-muted-foreground">
               صفحه <span className="text-foreground">{currentPage}</span> از{' '}
               {totalPages}
             </span>
-
             <Button
               variant="outline"
               size="sm"
@@ -162,7 +193,7 @@ export default async function AdminBooksPage({ searchParams }: Props) {
                   : 'cursor-pointer hover:bg-background'
               }
             >
-              <Link href={`/admin/books?page=${currentPage + 1}`}>
+              <Link href={`/admin/orders?page=${currentPage + 1}`}>
                 بعدی <ChevronLeft className="size-4 mr-1" />
               </Link>
             </Button>

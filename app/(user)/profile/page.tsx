@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,9 +19,13 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { autoCancelExpiredOrders } from '@/lib/actions/orders';
+import { formatPrice } from '@/lib/format';
 import { prisma } from '@/lib/prisma';
 
+import { CancelOrderButton } from './_components/CancelOrderButton';
 import { ProfileEditForm } from './_components/ProfileEditForm';
+import { RepayButton } from './_components/RepayButton';
 
 export const metadata: Metadata = {
   title: 'پروفایل کاربری',
@@ -30,11 +35,42 @@ export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user?.id) return null;
 
-  const userReviews = await prisma.review.findMany({
-    where: { userId: session.user.id },
-    include: { book: { select: { title: true, cover_image: true, id: true } } },
-    orderBy: { createdAt: 'desc' },
-  });
+  await autoCancelExpiredOrders();
+
+  const [userReviews, userOrders] = await Promise.all([
+    prisma.review.findMany({
+      where: { userId: session.user.id },
+      include: {
+        book: { select: { title: true, cover_image: true, id: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+
+    prisma.order.findMany({
+      where: { userId: session.user.id },
+      include: { items: { include: { book: { select: { title: true } } } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ]);
+
+  const STATUS_MAP = {
+    PENDING: {
+      label: 'در انتظار پرداخت',
+      color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
+    },
+    PAID: {
+      label: 'پرداخت شده',
+      color: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    },
+    DELIVERED: {
+      label: 'تحویل داده شده',
+      color: 'bg-green-500/10 text-green-600 border-green-500/20',
+    },
+    CANCELLED: {
+      label: 'لغو شده',
+      color: 'bg-red-500/10 text-red-600 border-red-500/20',
+    },
+  };
 
   const displayName =
     session.user.name || session.user.email?.split('@')[0] || 'کاربر ورق';
@@ -122,17 +158,93 @@ export default async function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="orders">
-          <Card className="border-border/50 shadow-sm">
-            <CardContent className="flex flex-col items-center justify-center py-20 text-center gap-4">
-              <ShoppingBag className="size-16 text-muted-foreground/30" />
-              <p className="text-muted-foreground">
-                شما هنوز سفارشی ثبت نکرده‌اید.
-              </p>
-              <Button asChild variant="outline" className="mt-2 rounded-xl">
-                <Link href="/books">رفتن به فروشگاه</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col gap-4">
+            {userOrders.length > 0 ? (
+              userOrders.map(order => (
+                <Card
+                  key={order.id}
+                  className="border-border/50 shadow-sm overflow-hidden"
+                >
+                  <div className="bg-muted/30 p-4 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-medium">
+                      <span className="text-muted-foreground">
+                        {new Intl.DateTimeFormat('fa-IR').format(
+                          order.createdAt,
+                        )}
+                      </span>
+                      <Separator
+                        orientation="vertical"
+                        className="h-4 hidden sm:block"
+                      />
+                      <span className="text-primary font-bold">
+                        {formatPrice(order.totalAmount)}
+                      </span>
+                      {order.trackId && (
+                        <>
+                          <Separator
+                            orientation="vertical"
+                            className="h-4 hidden sm:block"
+                          />
+                          <span className="text-muted-foreground">
+                            کدرهگیری:{' '}
+                            <span dir="ltr" className="text-foreground">
+                              {order.trackId}
+                            </span>
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <Badge
+                        variant="outline"
+                        className={STATUS_MAP[order.status].color}
+                      >
+                        {STATUS_MAP[order.status].label}
+                      </Badge>
+
+                      {order.status === 'PENDING' && (
+                        <div className="flex items-center gap-2">
+                          <CancelOrderButton orderId={order.id} />
+                          <RepayButton orderId={order.id} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm font-bold mb-1">اقلام سفارش:</p>
+                      {order.items.map(item => (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-2 text-sm text-muted-foreground"
+                        >
+                          <span className="bg-muted px-2 py-0.5 rounded text-xs font-bold">
+                            {item.quantity} عدد
+                          </span>
+                          <span className="line-clamp-1">
+                            {item.book.title}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="border-border/50 shadow-sm">
+                <CardContent className="flex flex-col items-center justify-center py-20 text-center gap-4">
+                  <ShoppingBag className="size-16 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">
+                    شما هنوز سفارشی ثبت نکرده‌اید.
+                  </p>
+                  <Button asChild variant="outline" className="mt-2 rounded-xl">
+                    <Link href="/books">رفتن به فروشگاه</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="reviews">

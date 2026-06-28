@@ -180,3 +180,60 @@ export async function verifyPayment(
     return { error: 'خطای سرور در تایید پرداخت.' };
   }
 }
+
+export async function rePayOrder(orderId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return { error: 'ابتدا وارد سایت شوید.' };
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, userId: session.user.id },
+      include: { items: { include: { book: true } } },
+    });
+
+    if (!order) return { error: 'سفارش یافت نشد.' };
+    if (order.status !== 'PENDING')
+      return { error: 'این سفارش قابل پرداخت نیست.' };
+
+    for (const item of order.items) {
+      if (item.book.stock < item.quantity) {
+        return {
+          error: `موجودی کتاب "${item.book.title}" به اتمام رسیده است.`,
+        };
+      }
+    }
+
+    const requestBody = {
+      merchant: ZIBAL_MERCHANT,
+      amount: order.totalAmount * 10,
+      callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/payment/verify`,
+      description: `پرداخت مجدد سفارش ${order.id}`,
+      orderId: order.id,
+      mobile: order.phone || '',
+    };
+
+    const zibalRes = await fetch(ZIBAL_REQUEST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+    });
+
+    const zibalData = await zibalRes.json();
+
+    if (Number(zibalData.result) === 100 && zibalData.trackId) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { trackId: zibalData.trackId.toString() },
+      });
+
+      return { url: `${ZIBAL_START_URL}${zibalData.trackId}` };
+    } else {
+      return {
+        error: `خطای درگاه: ${zibalData.message} (کد ${zibalData.result})`,
+      };
+    }
+  } catch (error) {
+    console.error('Repay Error:', error);
+    return { error: 'خطای سرور در اتصال مجدد به درگاه.' };
+  }
+}

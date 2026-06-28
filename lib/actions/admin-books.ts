@@ -8,7 +8,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { BookFormSchema } from '@/lib/validations/admin';
 
-async function checkAdmin() {
+export async function checkAdmin() {
   const session = await auth();
   if (session?.user?.role !== 'ADMIN') {
     throw new Error('دسترسی غیرمجاز');
