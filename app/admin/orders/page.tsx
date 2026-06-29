@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 
 import Link from 'next/link';
 
+import { EditShippingDialog } from '@/components/shared/EditShippingDialog';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -85,7 +86,7 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                   تاریخ ثبت
                 </TableHead>
                 <TableHead className="text-center py-4 font-bold w-48">
-                  تغییر وضعیت
+                  عملیات
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -139,11 +140,22 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                       timeStyle: 'short',
                     }).format(order.createdAt)}
                   </TableCell>
-                  <TableCell className="text-center border-0">
-                    <OrderStatusSelect
-                      orderId={order.id}
-                      currentStatus={order.status}
-                    />
+                  <TableCell className="border-0">
+                    <div className="flex items-center gap-2">
+                      <EditShippingDialog
+                        orderId={order.id}
+                        currentPhone={order.phone || ''}
+                        currentAddress={order.address || ''}
+                        disabled={
+                          order.status === 'DELIVERED' ||
+                          order.status === 'CANCELLED'
+                        }
+                      />
+                      <OrderStatusSelect
+                        orderId={order.id}
+                        currentStatus={order.status}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
