@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { auth } from '@/auth';
 
+import { EditShippingDialog } from '@/components/shared/EditShippingDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -163,9 +164,9 @@ export default async function ProfilePage() {
               userOrders.map(order => (
                 <Card
                   key={order.id}
-                  className="border-border/50 shadow-sm overflow-hidden"
+                  className="border-border/50 shadow-sm overflow-hidden pt-0"
                 >
-                  <div className="bg-muted/30 p-4 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="bg-muted/30 px-4 py-6 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex flex-wrap items-center gap-4 text-sm font-medium">
                       <span className="text-muted-foreground">
                         {new Intl.DateTimeFormat('fa-IR').format(
@@ -211,7 +212,37 @@ export default async function ProfilePage() {
                       )}
                     </div>
                   </div>
-                  <CardContent className="p-4">
+                  <CardContent className="px-4 py-2">
+                    <div className="border-b pb-4 mb-4 border-border/50 text-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">
+                              شماره تماس:
+                            </span>
+                            <span className="font-medium" dir="ltr">
+                              {order.phone || 'ثبت نشده'}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="text-muted-foreground whitespace-nowrap">
+                              آدرس ارسال:
+                            </span>
+                            <span className="font-medium leading-relaxed">
+                              {order.address || 'ثبت نشده'}
+                            </span>
+                          </div>
+                        </div>
+                        {(order.status === 'PENDING' ||
+                          order.status === 'PAID') && (
+                          <EditShippingDialog
+                            orderId={order.id}
+                            currentPhone={order.phone || ''}
+                            currentAddress={order.address || ''}
+                          />
+                        )}
+                      </div>
+                    </div>
                     <div className="flex flex-col gap-2">
                       <p className="text-sm font-bold mb-1">اقلام سفارش:</p>
                       {order.items.map(item => (

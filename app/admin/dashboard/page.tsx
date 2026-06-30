@@ -27,7 +27,7 @@ import { prisma } from '@/lib/prisma';
 import { DashboardFilter } from './_components/DashboardFilter';
 import { RevenueChart } from './_components/RevenueChart';
 
-const STATUS_MAP = {
+export const STATUS_MAP = {
   PENDING: {
     label: 'در انتظار پرداخت',
     color: 'text-yellow-600 bg-yellow-500/10',
