@@ -12,6 +12,18 @@ export interface FilterParams {
   inStock?: boolean;
 }
 
+const parseYearForSorting = (yearStr: string): number => {
+  if (!yearStr) return 0;
+  if (yearStr.includes('قبل از میلاد')) {
+    const match = yearStr.match(/\d+/);
+    if (match) return -parseInt(match[0]);
+    return -9999;
+  }
+
+  const parsed = parseInt(yearStr);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
 export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
   const where: Prisma.BookWhereInput = {};
 
@@ -39,12 +51,6 @@ export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
       case 'price_desc':
         orderBy = { price: 'desc' };
         break;
-      case 'year_desc':
-        orderBy = { publication_year: 'desc' };
-        break;
-      case 'year_asc':
-        orderBy = { publication_year: 'asc' };
-        break;
       case 'title_asc':
         orderBy = { title: 'asc' };
         break;
@@ -61,6 +67,24 @@ export async function getFilteredBooks(params: FilterParams): Promise<Book[]> {
   return books.sort((a, b) => {
     const aInStock = a.stock > 0 ? 1 : 0;
     const bInStock = b.stock > 0 ? 1 : 0;
-    return bInStock - aInStock;
+
+    if (aInStock !== bInStock) {
+      return bInStock - aInStock;
+    }
+
+    if (params.sort === 'year_desc') {
+      return (
+        parseYearForSorting(b.publication_year) -
+        parseYearForSorting(a.publication_year)
+      );
+    }
+    if (params.sort === 'year_asc') {
+      return (
+        parseYearForSorting(a.publication_year) -
+        parseYearForSorting(b.publication_year)
+      );
+    }
+
+    return 0;
   });
 }
