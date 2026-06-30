@@ -1,6 +1,7 @@
 import {
   GitHubLogoIcon as Github,
   InstagramLogoIcon as Instagram,
+  LinkedInLogoIcon as LinkedIn,
   TwitterLogoIcon as Twitter,
 } from '@radix-ui/react-icons';
 
@@ -96,8 +97,21 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
+        <div className="mt-12 pt-8 border-t border-border/50 text-center flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>© {currentYear} کتابفروشی ورق. تمامی حقوق محفوظ است.</p>
+          <p className="flex flex-wrap items-center justify-center gap-1.5">
+            توسعه یافته با{' '}
+            <span className="text-red-500 animate-pulse">❤️</span> توسط
+            <a
+              href="https://www.linkedin.com/in/nima-yaghouti"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex gap-1 font-semibold text-foreground hover:text-primary transition-colors"
+            >
+              Nima Yaghouti
+              <LinkedIn className="size-5" />
+            </a>
+          </p>
         </div>
       </div>
     </footer>
