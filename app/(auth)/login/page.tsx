@@ -2,6 +2,7 @@
 
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
@@ -26,6 +27,16 @@ import { useCart } from '@/hooks';
 
 import { googleLoginAction, loginAction } from '@/lib/actions/auth';
 import { LoginSchema } from '@/lib/validations/auth';
+
+const AltchaWidget = dynamic(
+  () => import('@/components/shared/AltchaWrapper'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-20 w-full animate-pulse bg-muted rounded-xl my-2"></div>
+    ),
+  },
+);
 
 function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -65,6 +76,7 @@ function LoginForm() {
     const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
+      altcha: formData.get('altcha') as string,
     };
 
     const clientValidation = LoginSchema.safeParse(data);
@@ -100,7 +112,11 @@ function LoginForm() {
         <CardDescription>ایمیل و رمز عبور خود را وارد کنید</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+          noValidate
+        >
           <div className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-medium">
               ایمیل
@@ -147,6 +163,17 @@ function LoginForm() {
               <p className="text-xs text-destructive">{errors.password[0]}</p>
             )}
           </div>
+
+          <div className="flex justify-center w-full my-2">
+            <div className="w-full max-w-[320px]">
+              <AltchaWidget />
+            </div>
+          </div>
+          {errors.altcha && (
+            <p className="text-xs text-center text-destructive">
+              {errors.altcha[0]}
+            </p>
+          )}
 
           <Button
             type="submit"
