@@ -5,7 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
 import { prisma } from '@/lib/prisma';
-import { LoginSchema } from '@/lib/validations/auth';
+import { CoreAuthSchema } from '@/lib/validations/auth';
 
 import { authConfig } from './auth.config';
 
@@ -20,7 +20,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     CredentialsProvider({
       name: 'credentials',
       async authorize(credentials) {
-        const validatedFields = LoginSchema.safeParse(credentials);
+        const validatedFields = CoreAuthSchema.safeParse(credentials);
 
         if (validatedFields.success) {
           const { email, password } = validatedFields.data;

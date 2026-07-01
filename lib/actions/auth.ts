@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { signIn } from '@/auth';
 
 import { mergeLocalCartWithDatabase } from '@/lib/actions/cart';
+import { verifyAltchaPayload } from '@/lib/altcha';
 import { prisma } from '@/lib/prisma';
 import { LoginSchema, RegisterSchema } from '@/lib/validations/auth';
 
@@ -21,7 +22,12 @@ export async function registerAction(
       return { fieldErrors: z.flattenError(validatedFields.error).fieldErrors };
     }
 
-    const { email, password } = validatedFields.data;
+    const { email, password, altcha } = validatedFields.data;
+
+    const isHuman = await verifyAltchaPayload(altcha);
+    if (!isHuman) {
+      return { error: 'کپچا نامعتبر است یا منقضی شده.' };
+    }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -70,7 +76,13 @@ export async function loginAction(
       return { error: 'اطلاعات وارد شده نامعتبر است!' };
     }
 
-    const { email, password } = validatedFields.data;
+    const { email, password, altcha } = validatedFields.data;
+
+    const isHuman = await verifyAltchaPayload(altcha);
+    if (!isHuman) {
+      return { error: 'کپچا نامعتبر است یا منقضی شده.' };
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
 
     await signIn('credentials', {
