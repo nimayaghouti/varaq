@@ -9,3 +9,5 @@ export type {
 } from '@prisma/client';
 
 export { OrderStatus, Role } from '@prisma/client';
+
+import type {} from 'altcha/types/react';
