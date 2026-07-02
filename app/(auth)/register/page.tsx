@@ -2,6 +2,7 @@
 
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
@@ -26,6 +27,16 @@ import { useCart } from '@/hooks';
 
 import { googleLoginAction, registerAction } from '@/lib/actions/auth';
 import { RegisterSchema } from '@/lib/validations/auth';
+
+const AltchaWidget = dynamic(
+  () => import('@/components/shared/AltchaWrapper'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-20 w-full animate-pulse bg-muted rounded-xl my-2"></div>
+    ),
+  },
+);
 
 function RegisterForm() {
   const [loading, setLoading] = useState(false);
@@ -65,6 +76,7 @@ function RegisterForm() {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       confirmPassword: formData.get('confirmPassword') as string,
+      altcha: formData.get('altcha') as string,
     };
 
     const clientValidation = RegisterSchema.safeParse(data);
@@ -104,7 +116,11 @@ function RegisterForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+          noValidate
+        >
           <div className="flex flex-col gap-2">
             <label htmlFor="email" className="text-sm font-medium">
               ایمیل
@@ -183,6 +199,17 @@ function RegisterForm() {
               </p>
             )}
           </div>
+
+          <div className="flex justify-center w-full my-2">
+            <div className="w-full max-w-[320px]">
+              <AltchaWidget />
+            </div>
+          </div>
+          {errors.altcha && (
+            <p className="text-xs text-center text-destructive">
+              {errors.altcha[0]}
+            </p>
+          )}
 
           <Button
             type="submit"

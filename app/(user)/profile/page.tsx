@@ -25,6 +25,8 @@ import { formatPrice } from '@/lib/format';
 import { prisma } from '@/lib/prisma';
 
 import { CancelOrderButton } from './_components/CancelOrderButton';
+import { ChangeEmailForm } from './_components/ChangeEmailForm';
+import { ChangePasswordForm } from './_components/ChangePasswordForm';
 import { ProfileEditForm } from './_components/ProfileEditForm';
 import { RepayButton } from './_components/RepayButton';
 
@@ -38,7 +40,7 @@ export default async function ProfilePage() {
 
   await autoCancelExpiredOrders();
 
-  const [userReviews, userOrders] = await Promise.all([
+  const [userReviews, userOrders, dbUser] = await Promise.all([
     prisma.review.findMany({
       where: { userId: session.user.id },
       include: {
@@ -52,7 +54,14 @@ export default async function ProfilePage() {
       include: { items: { include: { book: { select: { title: true } } } } },
       orderBy: { createdAt: 'desc' },
     }),
+
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { password: true },
+    }),
   ]);
+
+  const hasPassword = !!dbUser?.password;
 
   const STATUS_MAP = {
     PENDING: {
@@ -127,33 +136,20 @@ export default async function ProfilePage() {
               <CardTitle>اطلاعات شخصی</CardTitle>
               <CardDescription>مدیریت اطلاعات و حریم خصوصی</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-muted/30 p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <p className="text-sm font-bold">آدرس ایمیل (شناسه کاربری)</p>
-                  <p className="text-sm text-muted-foreground">
-                    برای تغییر ایمیل لطفاً با پشتیبانی تماس بگیرید.
-                  </p>
-                </div>
-                <div
-                  className="font-medium bg-background px-4 py-2 rounded-lg border border-border/50"
-                  dir="ltr"
-                >
-                  {session.user.email}
-                </div>
-              </div>
+            <CardContent className="space-y-4">
+              <ProfileEditForm
+                user={{
+                  name: session.user.name || null,
+                  image: session.user.image || null,
+                }}
+              />
 
-              <Separator />
+              <ChangeEmailForm
+                currentEmail={session.user.email as string}
+                hasPassword={hasPassword}
+              />
 
-              <div>
-                <h3 className="font-bold mb-2">ویرایش مشخصات</h3>
-                <ProfileEditForm
-                  user={{
-                    name: session.user.name || null,
-                    image: session.user.image || null,
-                  }}
-                />
-              </div>
+              <ChangePasswordForm hasPassword={hasPassword} />
             </CardContent>
           </Card>
         </TabsContent>

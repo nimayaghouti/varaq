@@ -122,16 +122,20 @@ export async function mergeLocalCartWithDatabase(
       }
     }
 
-    await prisma.$transaction([
-      prisma.cartItem.deleteMany({ where: { cartId: cart.id } }),
-      prisma.cartItem.createMany({
-        data: finalItemsToSave.map(item => ({
-          cartId: cart.id,
-          bookId: item.bookId,
-          quantity: item.quantity,
-        })),
-      }),
-    ]);
+    if (finalItemsToSave.length > 0) {
+      await prisma.$transaction([
+        prisma.cartItem.deleteMany({ where: { cartId: cart.id } }),
+        prisma.cartItem.createMany({
+          data: finalItemsToSave.map(item => ({
+            cartId: cart.id,
+            bookId: item.bookId,
+            quantity: item.quantity,
+          })),
+        }),
+      ]);
+    } else {
+      await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+    }
 
     const updatedCartItems = await prisma.cartItem.findMany({
       where: { cartId: cart.id },
