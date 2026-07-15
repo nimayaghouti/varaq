@@ -19,6 +19,7 @@ model User {
   emailVerified DateTime?
   password      String?   
   image         String?
+  imageId       String?
   role          Role      @default(USER) 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -62,6 +63,7 @@ model Book {
   publication_year String
   description      String
   cover_image      String
+  coverImageId     String?
   price            Int
   stock            Int      @default(10) 
   genres           String[] 
