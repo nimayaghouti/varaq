@@ -1,5 +1,13 @@
 import * as z from 'zod';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+];
+
 export const ProfileFormSchema = z.object({
   name: z
     .string()
@@ -7,9 +15,26 @@ export const ProfileFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   image: z
-    .url({ message: 'لینک تصویر معتبر نیست' })
+    .any()
     .optional()
-    .or(z.literal('')),
+    .refine(
+      file => !file || typeof file === 'string' || file instanceof File,
+      'فایل نامعتبر است.',
+    )
+    .refine(
+      file =>
+        !file ||
+        typeof file === 'string' ||
+        (file as File).size <= MAX_FILE_SIZE,
+      'حداکثر حجم مجاز ۵ مگابایت است.',
+    )
+    .refine(
+      file =>
+        !file ||
+        typeof file === 'string' ||
+        ACCEPTED_IMAGE_TYPES.includes((file as File).type),
+      'فقط فرمت‌های jpg, jpeg, png, webp مجاز هستند.',
+    ),
 });
 
 export const ChangeEmailSchema = z.object({
