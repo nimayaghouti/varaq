@@ -5,10 +5,11 @@ import { Save } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Book } from '@prisma/client';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
+import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +30,8 @@ export function BookForm({ initialData, onSuccess }: BookFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(BookFormSchema),
@@ -49,6 +52,8 @@ export function BookForm({ initialData, onSuccess }: BookFormProps) {
         },
   });
 
+  const currentCover = useWatch({ control, name: 'cover_image' });
+
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
@@ -68,7 +73,7 @@ export function BookForm({ initialData, onSuccess }: BookFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 px-2">
       <div className="space-y-2">
         <Label htmlFor="title">عنوان کتاب</Label>
         <Input id="title" {...register('title')} className="bg-background" />
@@ -148,17 +153,19 @@ export function BookForm({ initialData, onSuccess }: BookFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="cover_image">لینک تصویر جلد</Label>
-        <Input
-          id="cover_image"
-          {...register('cover_image')}
-          className="bg-background text-left"
-          dir="ltr"
-          placeholder="https://..."
+        <Label>تصویر جلد کتاب</Label>
+        <ImageUpload
+          value={currentCover}
+          disabled={loading}
+          aspectRatio={3 / 4}
+          cropVariant="cover"
+          onChange={file =>
+            setValue('cover_image', file, { shouldValidate: true })
+          }
         />
         {errors.cover_image && (
           <p className="text-xs text-destructive">
-            {errors.cover_image.message}
+            {errors.cover_image.message as string}
           </p>
         )}
       </div>
