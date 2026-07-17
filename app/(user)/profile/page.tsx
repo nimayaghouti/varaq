@@ -89,7 +89,7 @@ export default async function ProfilePage() {
     <div className="max-w-5xl mx-auto flex flex-col gap-8">
       <div className="bg-card border border-border/50 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
         <Avatar className="size-24 border-4 border-muted">
-          <AvatarImage src={session.user.image || ''} />
+          <AvatarImage src={session.user.image || undefined} />
           <AvatarFallback className="text-3xl bg-primary/10 text-primary">
             {displayName.charAt(0)}
           </AvatarFallback>

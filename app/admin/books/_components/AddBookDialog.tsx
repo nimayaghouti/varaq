@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function AddBookDialog() {
   const [open, setOpen] = useState(false);
@@ -25,18 +26,20 @@ export function AddBookDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-150 font-sans max-h-[90vh] overflow-y-auto"
+        className="sm:max-w-150 font-sans max-h-[90vh] overflow-y-auto px-0"
         dir="rtl"
         showCloseButton={false}
       >
-        <DialogHeader>
-          <DialogTitle className="text-right text-xl">
-            مشخصات کتاب جدید
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <BookForm onSuccess={() => setOpen(false)} />
-        </div>
+        <ScrollArea dir="rtl" className="h-[80vh] p-4">
+          <DialogHeader>
+            <DialogTitle className="text-right text-xl px-2">
+              مشخصات کتاب جدید
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <BookForm onSuccess={() => setOpen(false)} />
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
