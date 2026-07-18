@@ -1,11 +1,16 @@
 'use server';
 
+import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
 
 import { auth, unstable_update } from '@/auth';
 
+import {
+  deleteImageFromCloudinary,
+  uploadImageToCloudinary,
+} from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
 import {
   ChangeEmailSchema,
@@ -29,18 +34,45 @@ export async function updateProfileAction(
 
     const { name, image } = validatedFields.data;
 
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { imageId: true, image: true },
+    });
+
+    const updateData: Prisma.UserUpdateInput = { name: name || null };
+
+    let finalSessionImage = currentUser?.image || null;
+
+    if (image instanceof File) {
+      if (currentUser?.imageId) {
+        await deleteImageFromCloudinary(currentUser.imageId);
+      }
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+      const uploadResult = await uploadImageToCloudinary(buffer, 'profiles');
+
+      updateData.image = uploadResult.url;
+      updateData.imageId = uploadResult.publicId;
+      finalSessionImage = uploadResult.url;
+    } else if (image === '' || image === null) {
+      if (currentUser?.imageId) {
+        await deleteImageFromCloudinary(currentUser.imageId);
+      }
+
+      updateData.image = null;
+      updateData.imageId = null;
+      finalSessionImage = null;
+    }
+
     await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        name: name || null,
-        image: image || null,
-      },
+      data: updateData,
     });
 
     await unstable_update({
       user: {
         name: name || null,
-        image: image || null,
+        image: finalSessionImage,
       },
     });
 

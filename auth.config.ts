@@ -14,9 +14,15 @@ export const authConfig = {
       }
 
       if (trigger === 'update' && session?.user) {
-        if (session.user.name) token.name = session.user.name;
-        if (session.user.image) token.picture = session.user.image;
-        if (session.user.email) token.email = session.user.email;
+        if (session.user.name !== undefined) {
+          token.name = session.user.name;
+        }
+        if (session.user.image !== undefined) {
+          token.picture = session.user.image;
+        }
+        if (session.user.email !== undefined) {
+          token.email = session.user.email;
+        }
       }
 
       return token;

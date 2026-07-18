@@ -78,7 +78,7 @@ export function UserMenu({ user }: UserMenuProps) {
           className="relative size-8 rounded-full cursor-pointer"
         >
           <Avatar className="size-8 border border-border/50">
-            <AvatarImage src={user.image || ''} alt={displayName} />
+            <AvatarImage src={user.image || undefined} alt={displayName} />
             <AvatarFallback className="bg-primary/10 text-primary font-medium uppercase">
               {displayName.charAt(0)}
             </AvatarFallback>

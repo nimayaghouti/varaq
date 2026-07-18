@@ -5,11 +5,12 @@ import { Save } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
 import { EditableSection } from '@/components/shared/EditableSection';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +35,8 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(ProfileFormSchema),
@@ -42,6 +45,8 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
       image: user.image || '',
     },
   });
+
+  const currentImage = useWatch({ control, name: 'image' });
 
   const onSubmit = async (data: FormData, close: () => void) => {
     setLoading(true);
@@ -91,17 +96,19 @@ export function ProfileEditForm({ user }: ProfileEditFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">لینک آواتار (تصویر پروفایل)</Label>
-              <Input
-                id="image"
-                {...register('image')}
-                className="bg-background text-left"
-                dir="ltr"
-                placeholder="https://..."
+              <Label>تصویر پروفایل</Label>
+              <ImageUpload
+                value={currentImage}
+                disabled={loading}
+                aspectRatio={1}
+                cropVariant="square"
+                onChange={file =>
+                  setValue('image', file, { shouldValidate: true })
+                }
               />
               {errors.image && (
                 <p className="text-xs text-destructive">
-                  {errors.image.message}
+                  {errors.image.message as string}
                 </p>
               )}
             </div>
