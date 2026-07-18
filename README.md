@@ -7,6 +7,7 @@
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![NextAuth.js](https://img.shields.io/badge/Auth.js-000000?style=for-the-badge&logo=auth0&logoColor=white)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 Varaq is a full-stack, production-grade e-commerce platform built to demonstrate advanced React, Next.js, and backend architectural patterns. It features a complete shopping experience — from dynamic routing, fuzzy searching, and URL-driven filtering to secure authentication, real-time inventory tracking, cross-device cart synchronization, and a full checkout and payment pipeline — all backed by a dedicated admin dashboard for store management.
@@ -42,10 +43,11 @@ This project was developed with a strict focus on **Performance, SEO, and Clean 
 - **Anti-Spam Protection:** Integrated **Altcha**, a privacy-first, Proof-of-Work challenge system, to protect authentication forms from bots without relying on invasive CAPTCHAs.
 - **Account Management:** A dedicated account settings area lets users securely update their email and password (with current-password verification), with sensible guardrails for accounts authenticated via Google.
 
-### 🏪 Admin Dashboard
+### 🏪 Admin Dashboard & Media Management
 
 - **Analytics & Insights:** A real-time analytics dashboard surfacing revenue, active users, and order trends across configurable time ranges, visualized with interactive charts.
 - **Inventory Management:** Full CRUD control over the book catalog through a paginated, validated data table.
+- **Cloud Asset Pipeline:** Engineered an interactive drag-and-drop image uploader with client-side cropping (`react-easy-crop`). Files are converted to buffers and securely streamed to **Cloudinary** via Server Actions, complete with automated garbage collection for orphaned assets.
 - **Order Operations:** Review and update order statuses, inspect customer details, and edit shipping information directly from the admin panel.
 
 ### 💳 Checkout, Payments & Order Lifecycle
@@ -56,7 +58,7 @@ This project was developed with a strict focus on **Performance, SEO, and Clean 
 
 ### ⭐ Reviews & User Profiles
 
-- **Profile Dashboard:** A dedicated account area where users can manage personal info and review their order and review history.
+- **Profile Dashboard:** A dedicated account area where users can manage personal info, upload custom cropped avatars, and review their order and review history.
 - **Book Reviews & Ratings:** Users can leave one review per book; aggregated star ratings are calculated and displayed in real time across the catalog.
 
 ### 📦 Real-Time Inventory Awareness
@@ -74,6 +76,7 @@ This project was developed with a strict focus on **Performance, SEO, and Clean 
 - **Authentication:** Auth.js (NextAuth v5) — Credentials & Google OAuth
 - **Styling:** Tailwind CSS v4 & `shadcn/ui` (Radix UI)
 - **State Management:** Zustand
+- **Media & Storage:** Cloudinary & `react-easy-crop`
 - **Search Engine:** Fuse.js
 - **Forms & Validation:** `react-hook-form` & Zod
 - **Animations:** Framer Motion
@@ -111,6 +114,7 @@ To run this project locally:
    AUTH_SECRET="your-random-secret-key-generated-by-npx-auth-secret"
    AUTH_GOOGLE_ID="your-google-client-id"
    AUTH_GOOGLE_SECRET="your-google-client-secret"
+   CLOUDINARY_URL="cloudinary://<api_key>:<api_secret>@<cloud_name>"
    ```
 
 4. **Set up the database:**
@@ -137,7 +141,7 @@ To run this project locally:
 
 - `app/`: Contains the App Router segments — including the `(auth)`, `(shop)`, `(static)`, and `(user)` route groups, plus a dedicated `admin` section — along with layouts and loading states.
 - `components/`: Modular UI pieces categorized into `shared`, `layout`, `admin`, `auth`, and `ui` (shadcn).
-- `lib/data/`: Server-side logic for fetching, filtering, and searching the catalog (Prisma + Fuse.js).
+- `lib/`: Server-side utilities, Prisma client, Cloudinary SDK wrapper, and data fetching logic.
 - `lib/actions/`: Server Actions for authentication, cart syncing, orders, reviews, and admin mutations.
 - `lib/validations/`: Zod schemas used across forms and Server Actions.
 - `prisma/`: Database schema (`schema.prisma`) and seeding scripts.
